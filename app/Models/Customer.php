@@ -9,6 +9,8 @@ class Customer extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['amount'];
+
     public function user()
     {
         return $this->belongsToMany(User::class);

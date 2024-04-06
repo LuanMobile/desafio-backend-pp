@@ -19,7 +19,7 @@ class RetailerFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'balance' => fake()->numberBetween(100, 500)
+            'amount' => fake()->numberBetween(100, 500)
         ];
     }
 }
