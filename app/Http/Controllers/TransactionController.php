@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Retailer;
-use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
 {
@@ -16,34 +16,62 @@ class TransactionController extends Controller
             "payer": 4, // customer
             "payee": 15 // retailer
         } */
+        $customer = Customer::find($request->payer);
+        $customer2 = Customer::find($request->payer2);
+        $retailer = Retailer::find(2);
+        $amount = $request->value;
 
-        //dd($request->all());
-        $data = $request->all();
-        $customerId = $data['payer'];
-        $retailerId = $data['payee'];
+        $arrayKeys = array_keys($request->all());
+        // dd($arrayKeys);
 
-        $amount = $request['value']; // 100
+        if ($arrayKeys[2] == 'payer2') {
+            if ($this->usersExists($request)) {
+                return $this->usersExists($request);
+            }
+            DB::transaction(function () use ($customer, $customer2, $amount) {
+                if ($customer->amount > 0) {
+                    $customer->amount -= $amount;
+                    //$customer->save();
 
-        $customer = new Customer();
-        $retailer = new Retailer();
-        /* if ($this->usersExists($request)) {
-            return $this->usersExists($request);
-        } */
-
-        if ($customer->find($customerId)->amount > 0) {
-            dd('tem saldo');
+                    $customer2->amount += $amount;
+                    // $retailer->save();
+                    return response()->json('Transferência realizada com sucesso');
+                }
+            });
         }
+
+        if ($this->usersExists($request)) {
+            return $this->usersExists($request);
+        }
+
+        dd('oi');
+        DB::transaction(function () use ($customer, $retailer, $amount) {
+            if ($customer->amount > 0) {
+                $customer->amount -= $amount;
+                //$customer->save();
+
+                $retailer->amount += $amount;
+                // $retailer->save();
+            }
+            return response()->json('Transferência realizada com sucesso');
+        });
     }
 
     public function usersExists(Request $request)
     {
-        $data = $request->all();
-        $customerId = $data['payer'];
-        $retailerId = $data['payee'];
-        $customer = new Customer;
-        $retailer = new Retailer;
+        $arrayKeys = array_keys($request->all());
+        // dd($arrayKeys);
+        $userCustomer = Customer::find($request->payer);
+        $userCustomer2 = Customer::find($request->payer2);
+        $userRetailer = Retailer::find($request->payee);
 
-        if (!($customer->where('id', '=', $customerId)->exists() && $retailer->where('id', '=', $retailerId)->exists())) {
+        if ($arrayKeys[2] == 'payee') {
+            if (is_null($userCustomer) || is_null($userRetailer)) {
+                return response()->json(["error" => 'Um dos usuários não foi encontrado!!!!!!!!!!!!!!!!!'], 400);
+            }
+        }
+
+        if (is_null($userCustomer) || is_null($userCustomer2)) {
             return response()->json(["error" => 'Um dos usuários não foi encontrado'], 400);
         }
     }
