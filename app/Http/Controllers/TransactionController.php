@@ -18,11 +18,18 @@ class TransactionController extends Controller
         } */
         $customer = Customer::find($request->payer);
         $customer2 = Customer::find($request->payer2);
-        $retailer = Retailer::find(2);
+        $retailer = Retailer::find($request->payee);
         $amount = $request->value;
-
         $arrayKeys = array_keys($request->all());
-        // dd($arrayKeys);
+        $arrayValues = array_values($request->all());
+
+        if ($arrayKeys[1] == 'payee') {
+            return response()->json(["error" => 'Você é lojista e não pode fazer transferência.'], 400);
+        }
+
+        if ($arrayValues[1] == $arrayValues[1]) {
+            return response()->json(["error" => 'Erro de transferência.'], 400);
+        }
 
         if ($arrayKeys[2] == 'payer2') {
             if ($this->usersExists($request)) {
@@ -44,7 +51,6 @@ class TransactionController extends Controller
             return $this->usersExists($request);
         }
 
-        dd('oi');
         DB::transaction(function () use ($customer, $retailer, $amount) {
             if ($customer->amount > 0) {
                 $customer->amount -= $amount;
@@ -52,27 +58,26 @@ class TransactionController extends Controller
 
                 $retailer->amount += $amount;
                 // $retailer->save();
+                return response()->json('Transferência realizada com sucesso');
             }
-            return response()->json('Transferência realizada com sucesso');
         });
     }
 
     public function usersExists(Request $request)
     {
         $arrayKeys = array_keys($request->all());
-        // dd($arrayKeys);
         $userCustomer = Customer::find($request->payer);
         $userCustomer2 = Customer::find($request->payer2);
         $userRetailer = Retailer::find($request->payee);
 
         if ($arrayKeys[2] == 'payee') {
             if (is_null($userCustomer) || is_null($userRetailer)) {
-                return response()->json(["error" => 'Um dos usuários não foi encontrado!!!!!!!!!!!!!!!!!'], 400);
+                return response()->json(["error" => 'Um dos usuários não foi encontrado!'], 400);
             }
         }
 
         if (is_null($userCustomer) || is_null($userCustomer2)) {
-            return response()->json(["error" => 'Um dos usuários não foi encontrado'], 400);
+            return response()->json(["error" => 'Um dos usuários não foi encontrado!'], 400);
         }
     }
 }
