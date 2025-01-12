@@ -16,6 +16,10 @@ class Wallet extends Model
         'balance'
     ];
 
+    // Definir o tipo da chave primária
+    protected $keyType = 'string'; // UUID é uma string
+    public $incrementing = false; // Desabilitar auto incremento
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

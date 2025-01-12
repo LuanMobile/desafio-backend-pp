@@ -19,6 +19,10 @@ class User extends Authenticatable
      */
     protected $fillable = ["*"];
 
+    // Definir o tipo da chave primária
+    protected $keyType = 'string'; // UUID é uma string
+    public $incrementing = false; // Desabilitar auto incremento
+
     /**
      * The attributes that should be hidden for serialization.
      *

@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('wallets', function (Blueprint $table) {
-            $table->uuid('id');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade')->unique();
+            $table->uuid('id')->primary(); // UUID para a chave primária da wallet
+            $table->uuid('user_id'); // Chave estrangeira UUID
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->unique(); // Chave estrangeira para o user
             $table->enum('type', ['common', 'merchant']);
             $table->decimal('balance', 10, 2)->default(0);
             $table->timestamps();
