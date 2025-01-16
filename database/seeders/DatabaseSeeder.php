@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Customer;
-use App\Models\Retailer;
 use App\Models\User;
+use App\Models\Wallet;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,13 +14,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        //User::factory()->create();
-        Customer::factory(10)->create();
-        Retailer::factory(10)->create();
-
-        /* User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]); */
+        // Cria 10 usuários e, para cada um, cria uma wallet associada
+        User::factory(10)->create()->each(function ($user) {
+            Wallet::factory()->create(['user_id' => $user->id]);
+        });
     }
 }
